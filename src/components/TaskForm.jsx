@@ -7,20 +7,20 @@ const TaskForm = ({ listId, onTaskCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!title.trim()) return
+    const trimmed = title.trim()
+    if (!trimmed) return
 
     try {
       const res = await fetch(`${API}/lists/${listId}/tasks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ title: trimmed }),
       })
 
       if (!res.ok) throw new Error("Error al crear tarea")
-
       const newTask = await res.json()
       onTaskCreated(newTask)
-      setTitle("")
+      setTitle("") // limpiar input después de crear
     } catch (error) {
       console.error("Error al crear tarea:", error)
     }

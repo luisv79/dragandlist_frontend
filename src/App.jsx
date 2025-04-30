@@ -6,8 +6,11 @@ import Cheque from "./assets/logo-check.png"
 const App = () => {
   const [boards, setBoards] = useState([])
 
+  const API = import.meta.env.VITE_API_URL
+
+
   const getBoards = async () => {
-    const response = await fetch("http://localhost:5000/boards")
+    const response = await fetch("https://dragandlist-backend.onrender.com/boards")
     const data = await response.json()
     setBoards(data)
   }
@@ -17,7 +20,7 @@ const App = () => {
   }, [])
 
   const addBoard = async (title) => {
-    const response = await fetch("http://localhost:5000/boards", {
+    const response = await fetch("https://dragandlist-backend.onrender.com/boards", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title }),
@@ -27,7 +30,7 @@ const App = () => {
   }
 
   const removeBoard = async (id) => {
-    const response = await fetch(`http://localhost:5000/boards/${id}`, {
+    const response = await fetch(`${API}/boards/${id}`, {
       method: "DELETE",
     })
 

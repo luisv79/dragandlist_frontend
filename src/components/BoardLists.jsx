@@ -88,6 +88,9 @@ const SortableList = ({ children, id }) => {
   )
 }
 
+const API = import.meta.env.VITE_API_URL
+
+
 const BoardLists = ({ boardId }) => {
   const [lists, setLists] = useState([])
 
@@ -95,12 +98,12 @@ const BoardLists = ({ boardId }) => {
 
   useEffect(() => {
     const fetchListsAndTasks = async () => {
-      const res = await fetch(`http://localhost:5000/boards/${boardId}/lists`)
+      const res = await fetch(`${API}/${boardId}/lists`)
       const data = await res.json()
 
       const listsWithTasks = await Promise.all(
         data.map(async (list) => {
-          const res = await fetch(`http://localhost:5000/lists/${list.id}/tasks`)
+          const res = await fetch(`${API}/lists/${list.id}/tasks`)
           const tasks = await res.json()
           return { ...list, tasks }
         })
@@ -113,7 +116,7 @@ const BoardLists = ({ boardId }) => {
   }, [boardId])
 
   const handleTaskToggle = async (listId, taskId, done) => {
-    const res = await fetch(`http://localhost:5000/tasks/${taskId}`, {
+    const res = await fetch(`${API}/tasks/${taskId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ done: !done }),
@@ -181,7 +184,7 @@ const BoardLists = ({ boardId }) => {
 
     if (sourceList.id !== destList.id) {
       // Actualizar en el backend
-      fetch(`http://localhost:5000/tasks/${activeTask.id}`, {
+      fetch(`${API}/tasks/${activeTask.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ list_id: destList.id }),

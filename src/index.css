@@ -1,0 +1,56 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+
+:root{
+  --Blue-dark:  #00639d;
+  --Blue: #0079be;
+  --Blue-light: #4d92ba;
+  --Gray: #f1f2f4;
+  --Morado: #6e5dc6;
+}
+
+
+
+body{
+  background-color: var(--Blue-dark);
+  font-family: "Roboto", sans-serif;
+  font-size: small;
+}
+
+.Logo-img{
+  width: 30px;
+}
+.titulo-principal{
+  color: var(--Gray);
+}
+
+.header-titulo{
+  display: flex;
+  justify-content: space-between;
+}
+
+.formulario-principal{
+   display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: nowrap;
+}
+
+.tablero{
+  background-color: var(--Blue) !important;
+}
+ 
+.card-lista{
+  background-color: var(--Gray) !important;
+}
+
+.board-title h3{
+  color: var(--Gray);
+  font-size: large;
+}
+
+.list-title h5{
+  font-size: medium;
+}

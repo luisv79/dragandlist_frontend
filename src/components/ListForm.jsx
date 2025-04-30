@@ -3,12 +3,14 @@ import { useState } from "react"
 const ListForm = ({ boardId, onListCreated }) => {
   const [title, setTitle] = useState("")
 
+  const API = import.meta.env.VITE_API_URL
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!title.trim()) return
 
     try {
-      const res = await fetch(`http://localhost:5000/boards/${boardId}/lists`, {
+      const res = await fetch(`${API}/${boardId}/lists`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title }),

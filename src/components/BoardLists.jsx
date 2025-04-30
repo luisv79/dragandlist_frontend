@@ -227,44 +227,50 @@ const BoardLists = ({ boardId }) => {
           items={lists.map((l) => `list-${l.id}`)}
           strategy={horizontalListSortingStrategy}
         >
-          {lists.map((list) => (
-            <SortableList key={`list-${list.id}`} id={`list-${list.id}`}>
-              <h5>{list.title}</h5>
+          {lists.map((list) => {
+  // ✅ Esta función se mantiene estable en cada render
+  const handleTaskCreated = (newTask) => {
+    setLists((prev) =>
+      prev.map((l) =>
+        l.id === list.id
+          ? { ...l, tasks: [...l.tasks, newTask] }
+          : l
+      )
+    )
+  }
 
-              <SortableContext
-                items={list.tasks.map((t) => t.id.toString())}
-                strategy={verticalListSortingStrategy}
-              >
-                <ul className="list-group">
-                  {list.tasks.length === 0 ? (
-                    <li className="list-group-item">Sin tareas</li>
-                  ) : (
-                    list.tasks.map((task) => (
-                      <TaskItem
-                        key={task.id}
-                        task={task}
-                        id={task.id.toString()}
-                        onToggle={() => handleTaskToggle(list.id, task.id, task.done)}
-                      />
-                    ))
-                  )}
-                </ul>
-              </SortableContext>
+  return (
+    <SortableList key={`list-${list.id}`} id={`list-${list.id}`}>
+      <h5>{list.title}</h5>
 
-              <TaskForm
-                listId={list.id}
-                onTaskCreated={(newTask) =>
-                  setLists((prev) =>
-                    prev.map((l) =>
-                      l.id === list.id
-                        ? { ...l, tasks: [...l.tasks, newTask] }
-                        : l
-                    )
-                  )
+      <SortableContext
+        items={list.tasks.map((t) => t.id.toString())}
+        strategy={verticalListSortingStrategy}
+      >
+        <ul className="list-group">
+          {list.tasks.length === 0 ? (
+            <li className="list-group-item">Sin tareas</li>
+          ) : (
+            list.tasks.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                id={task.id.toString()}
+                onToggle={() =>
+                  handleTaskToggle(list.id, task.id, task.done)
                 }
               />
-            </SortableList>
-          ))}
+            ))
+          )}
+        </ul>
+      </SortableContext>
+
+      {/* ✅ Usamos la función estable */}
+      <TaskForm listId={list.id} onTaskCreated={handleTaskCreated} />
+    </SortableList>
+  )
+})}
+
         </SortableContext>
       </DndContext>
 

@@ -20,7 +20,7 @@ const TaskForm = ({ listId, onTaskCreated }) => {
       if (!res.ok) throw new Error("Error al crear tarea")
       const newTask = await res.json()
       onTaskCreated(newTask)
-      setTitle("") // limpiar input después de crear
+      setTitle("") // Limpia el campo al crear
     } catch (error) {
       console.error("Error al crear tarea:", error)
     }
@@ -34,7 +34,7 @@ const TaskForm = ({ listId, onTaskCreated }) => {
           className="form-control"
           placeholder="Nueva tarea"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => setTitle(e.target.value)} // <- Esto es CLAVE
         />
         <button className="btn btn-outline-secondary" type="submit">
           Añadir

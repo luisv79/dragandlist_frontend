@@ -5,9 +5,14 @@ const BoardForm = ({ addBoard }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!title) return
-    await addBoard(title)
-    setTitle("")
+    const trimmed = title.trim()
+    if (!trimmed) return
+    try {
+      await addBoard(trimmed)
+      setTitle("")
+    } catch (error) {
+      console.error("Error al agregar tablero:", error)
+    }
   }
 
   return (
@@ -15,12 +20,12 @@ const BoardForm = ({ addBoard }) => {
       <input
         type="text"
         className="form-control"
-        placeholder="Titulo del tablero"
+        placeholder="Título del tablero"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
-      <button className="btn btn-primary  ms-2" type="submit">
-        Crear 
+      <button className="btn btn-primary ms-2" type="submit">
+        Crear
       </button>
     </form>
   )

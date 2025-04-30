@@ -1,8 +1,9 @@
 import { useState } from "react"
 
+const API = import.meta.env.VITE_API_URL
+
 const TaskForm = ({ listId, onTaskCreated }) => {
   const [title, setTitle] = useState("")
-  const API = import.meta.env.VITE_API_URL
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -14,6 +15,8 @@ const TaskForm = ({ listId, onTaskCreated }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title }),
       })
+
+      if (!res.ok) throw new Error("Error al crear tarea")
 
       const newTask = await res.json()
       onTaskCreated(newTask)

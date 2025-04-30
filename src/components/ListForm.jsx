@@ -1,23 +1,25 @@
 import { useState } from "react"
 
+const API = import.meta.env.VITE_API_URL
+
 const ListForm = ({ boardId, onListCreated }) => {
   const [title, setTitle] = useState("")
-
-  const API = import.meta.env.VITE_API_URL
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!title.trim()) return
 
     try {
-      const res = await fetch(`${API}/${boardId}/lists`, {
+      const res = await fetch(`${API}/boards/${boardId}/lists`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title }),
       })
 
+      if (!res.ok) throw new Error("Error al crear lista")
+
       const newList = await res.json()
-      onListCreated(newList) // avisar al padre
+      onListCreated(newList)
       setTitle("")
     } catch (error) {
       console.error("Error al crear lista:", error)

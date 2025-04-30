@@ -98,45 +98,57 @@ const BoardLists = ({ boardId }) => {
 
   useEffect(() => {
     const fetchListsAndTasks = async () => {
-      const res = await fetch(`${API}/${boardId}/lists`)
-      const data = await res.json()
-
-      const listsWithTasks = await Promise.all(
-        data.map(async (list) => {
-          const res = await fetch(`${API}/lists/${list.id}/tasks`)
-          const tasks = await res.json()
-          return { ...list, tasks }
-        })
-      )
-
-      setLists(listsWithTasks)
+      try {
+        const res = await fetch(`${API}/boards/${boardId}/lists`)
+        if (!res.ok) throw new Error("Error al obtener listas")
+        const data = await res.json()
+  
+        const listsWithTasks = await Promise.all(
+          data.map(async (list) => {
+            const res = await fetch(`${API}/lists/${list.id}/tasks`)
+            if (!res.ok) throw new Error(`Error al obtener tareas de lista ${list.id}`)
+            const tasks = await res.json()
+            return { ...list, tasks }
+          })
+        )
+  
+        setLists(listsWithTasks)
+      } catch (error) {
+        console.error("Error al cargar listas y tareas:", error)
+      }
     }
-
+  
     fetchListsAndTasks()
   }, [boardId])
+  
 
   const handleTaskToggle = async (listId, taskId, done) => {
-    const res = await fetch(`${API}/tasks/${taskId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ done: !done }),
-    })
-
-    const updated = await res.json()
-    setLists((prev) =>
-      prev.map((list) =>
-        list.id === listId
-          ? {
-              ...list,
-              tasks: list.tasks.map((t) =>
-                t.id === taskId ? updated : t
-              ),
-            }
-          : list
+    try {
+      const res = await fetch(`${API}/tasks/${taskId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ done: !done }),
+      })
+      if (!res.ok) throw new Error("Error al actualizar tarea")
+  
+      const updated = await res.json()
+      setLists((prev) =>
+        prev.map((list) =>
+          list.id === listId
+            ? {
+                ...list,
+                tasks: list.tasks.map((t) =>
+                  t.id === taskId ? updated : t
+                ),
+              }
+            : list
+        )
       )
-    )
+    } catch (err) {
+      console.error(err)
+    }
   }
-
+  
   const handleDragEnd = (event) => {
    
     
@@ -183,13 +195,17 @@ const BoardLists = ({ boardId }) => {
     updatedDestTasks.splice(overIndex, 0, activeTask)
 
     if (sourceList.id !== destList.id) {
-      // Actualizar en el backend
       fetch(`${API}/tasks/${activeTask.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ list_id: destList.id }),
-      }).catch((err) => console.error("Error actualizando list_id:", err))
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Error al actualizar list_id")
+        })
+        .catch((err) => console.error("Error actualizando list_id:", err))
     }
+    
 
     setLists((prev) =>
       prev.map((l) => {

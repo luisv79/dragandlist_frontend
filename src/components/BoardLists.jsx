@@ -60,14 +60,14 @@ const TaskItem = ({ task, onToggle, id }) => {
   )
 }
 
-const SortableList = ({ children, id }) => {
+const SortableList = ({ list, children }) => {
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id })
+  } = useSortable({ id: `list-${list.id}` })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -76,13 +76,10 @@ const SortableList = ({ children, id }) => {
   }
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="card p-2 card-lista"
-    >
+    <div ref={setNodeRef} style={style} className="card p-2 card-lista">
+      <div {...attributes} {...listeners} style={{ cursor: "grab" }}>
+        <h5>{list.title}</h5>
+      </div>
       {children}
     </div>
   )
@@ -90,10 +87,8 @@ const SortableList = ({ children, id }) => {
 
 const API = import.meta.env.VITE_API_URL
 
-
 const BoardLists = ({ boardId }) => {
   const [lists, setLists] = useState([])
-
   const sensors = useSensors(useSensor(PointerSensor))
 
   useEffect(() => {
@@ -102,7 +97,7 @@ const BoardLists = ({ boardId }) => {
         const res = await fetch(`${API}/boards/${boardId}/lists`)
         if (!res.ok) throw new Error("Error al obtener listas")
         const data = await res.json()
-  
+
         const listsWithTasks = await Promise.all(
           data.map(async (list) => {
             const res = await fetch(`${API}/lists/${list.id}/tasks`)
@@ -111,16 +106,15 @@ const BoardLists = ({ boardId }) => {
             return { ...list, tasks }
           })
         )
-  
+
         setLists(listsWithTasks)
       } catch (error) {
         console.error("Error al cargar listas y tareas:", error)
       }
     }
-  
+
     fetchListsAndTasks()
   }, [boardId])
-  
 
   const handleTaskToggle = async (listId, taskId, done) => {
     try {
@@ -130,7 +124,7 @@ const BoardLists = ({ boardId }) => {
         body: JSON.stringify({ done: !done }),
       })
       if (!res.ok) throw new Error("Error al actualizar tarea")
-  
+
       const updated = await res.json()
       setLists((prev) =>
         prev.map((list) =>
@@ -148,10 +142,8 @@ const BoardLists = ({ boardId }) => {
       console.error(err)
     }
   }
-  
+
   const handleDragEnd = (event) => {
-   
-    
     const { active, over } = event
     if (!over || active.id === over.id) return
 
@@ -205,7 +197,6 @@ const BoardLists = ({ boardId }) => {
         })
         .catch((err) => console.error("Error actualizando list_id:", err))
     }
-    
 
     setLists((prev) =>
       prev.map((l) => {
@@ -228,49 +219,44 @@ const BoardLists = ({ boardId }) => {
           strategy={horizontalListSortingStrategy}
         >
           {lists.map((list) => {
-  // ✅ Esta función se mantiene estable en cada render
-  const handleTaskCreated = (newTask) => {
-    setLists((prev) =>
-      prev.map((l) =>
-        l.id === list.id
-          ? { ...l, tasks: [...l.tasks, newTask] }
-          : l
-      )
-    )
-  }
+            const handleTaskCreated = (newTask) => {
+              setLists((prev) =>
+                prev.map((l) =>
+                  l.id === list.id
+                    ? { ...l, tasks: [...l.tasks, newTask] }
+                    : l
+                )
+              )
+            }
 
-  return (
-    <SortableList key={`list-${list.id}`} id={`list-${list.id}`}>
-      <h5>{list.title}</h5>
+            return (
+              <SortableList key={`list-${list.id}`} list={list}>
+                <SortableContext
+                  items={list.tasks.map((t) => t.id.toString())}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <ul className="list-group">
+                    {list.tasks.length === 0 ? (
+                      <li className="list-group-item">Sin tareas</li>
+                    ) : (
+                      list.tasks.map((task) => (
+                        <TaskItem
+                          key={task.id}
+                          task={task}
+                          id={task.id.toString()}
+                          onToggle={() =>
+                            handleTaskToggle(list.id, task.id, task.done)
+                          }
+                        />
+                      ))
+                    )}
+                  </ul>
+                </SortableContext>
 
-      <SortableContext
-        items={list.tasks.map((t) => t.id.toString())}
-        strategy={verticalListSortingStrategy}
-      >
-        <ul className="list-group">
-          {list.tasks.length === 0 ? (
-            <li className="list-group-item">Sin tareas</li>
-          ) : (
-            list.tasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                id={task.id.toString()}
-                onToggle={() =>
-                  handleTaskToggle(list.id, task.id, task.done)
-                }
-              />
-            ))
-          )}
-        </ul>
-      </SortableContext>
-
-      {/* ✅ Usamos la función estable */}
-      <TaskForm listId={list.id} onTaskCreated={handleTaskCreated} />
-    </SortableList>
-  )
-})}
-
+                <TaskForm listId={list.id} onTaskCreated={handleTaskCreated} />
+              </SortableList>
+            )
+          })}
         </SortableContext>
       </DndContext>
 

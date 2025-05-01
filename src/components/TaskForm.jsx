@@ -25,7 +25,7 @@ const TaskForm = ({ listId, onTaskCreated }) => {
       console.error("Error al crear tarea:", error)
     }
   }
-
+  console.log("render TaskForm")
   return (
     <form onSubmit={handleSubmit} className="mt-2">
       <div className="input-group input-group-sm">

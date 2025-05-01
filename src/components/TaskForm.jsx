@@ -27,21 +27,15 @@ const TaskForm = ({ listId, onTaskCreated }) => {
   }
   console.log("render TaskForm")
   return (
-    <form onSubmit={handleSubmit} className="mt-2">
-      <div className="input-group input-group-sm">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Nueva tarea"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)} // <- Esto es CLAVE
-        />
-        <button className="btn btn-outline-secondary" type="submit">
-          Añadir
-        </button>
-      </div>
-    </form>
+    <input
+      type="text"
+      value={title}
+      onChange={(e) => setTitle(e.target.value)}
+      placeholder="Test input directo"
+      style={{ width: "100%", padding: "10px", marginTop: "1rem" }}
+    />
   )
+  
 }
 
 export default TaskForm
